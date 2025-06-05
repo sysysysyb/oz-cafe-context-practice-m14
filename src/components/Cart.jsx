@@ -1,6 +1,11 @@
 import data from "../assets/data";
+import { useCart } from "../contexts/cartContext";
+import { useMenu } from "../contexts/menuContext";
 
-function Cart({ menu, cart, setCart }) {
+function Cart() {
+  const { menu } = useMenu();
+  const { cart } = useCart();
+
   if (!menu)
     return (
       <div style={{ textAlign: "center", margin: "80px" }}>
@@ -13,14 +18,14 @@ function Cart({ menu, cart, setCart }) {
       <h2>장바구니</h2>
       <ul className="cart">
         {cart?.length ? (
-          cart.map((el) => (
+          cart.map((el, idx) => (
             <CartItem
-              key={el.id}
+              key={idx}
+              id={idx}
               item={allMenus.find((menu) => menu.id === el.id)}
               options={el.options}
               quantity={el.quantity}
               cart={cart}
-              setCart={setCart}
             />
           ))
         ) : (
@@ -31,7 +36,9 @@ function Cart({ menu, cart, setCart }) {
   );
 }
 
-function CartItem({ item, options, quantity, cart, setCart }) {
+function CartItem({ id, item, options, quantity }) {
+  const { removeFromCart } = useCart();
+
   return (
     <li className="cart-item">
       <div className="cart-item-info">
@@ -39,8 +46,8 @@ function CartItem({ item, options, quantity, cart, setCart }) {
         <div>{item.name}</div>
       </div>
       <div className="cart-item-option">
-        {Object.keys(options).map((el) => (
-          <div key={el.id}>
+        {Object.keys(options).map((el, idx) => (
+          <div key={idx}>
             {el} : {data.options[el][options[el]]}
           </div>
         ))}
@@ -49,9 +56,8 @@ function CartItem({ item, options, quantity, cart, setCart }) {
       <button
         className="cart-item-delete"
         onClick={() => {
-          setCart(cart.filter((el) => item.id !== el.id));
-        }}
-      >
+          removeFromCart(id);
+        }}>
         삭제
       </button>
     </li>
